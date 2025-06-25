@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/Mrityunjoy99/sample-go/src/application/admin"
+	"github.com/Mrityunjoy99/sample-go/src/application/employee"
 	"github.com/Mrityunjoy99/sample-go/src/application/user"
 	"github.com/Mrityunjoy99/sample-go/src/common/config"
 	"github.com/Mrityunjoy99/sample-go/src/common/constant"
@@ -15,6 +16,7 @@ import (
 type Service struct {
 	UserService  user.Service
 	AdminService admin.Service
+	EmployeeService employee.Service
 }
 
 func NewService(c *config.Config, r *repository.Repository, domainService *service.ServiceRegistry) (*Service, genericerror.GenericError) {
@@ -27,9 +29,12 @@ func NewService(c *config.Config, r *repository.Repository, domainService *servi
 	}
 
 	userService := user.NewService(r.UserRepo)
+	adminService := admin.NewService(domainService.JwtService, c.Jwt.ExpireTimeSec)
+	employeeService := employee.NewService(r.EmployeeRepo)
 
 	return &Service{
 		UserService:  userService,
-		AdminService: admin.NewService(domainService.JwtService, c.Jwt.ExpireTimeSec),
+		AdminService: adminService,
+		EmployeeService: employeeService,
 	}, nil
 }

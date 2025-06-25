@@ -3,6 +3,7 @@ package appserver
 import (
 	"github.com/Mrityunjoy99/sample-go/src/application"
 	"github.com/Mrityunjoy99/sample-go/src/application/admin"
+	"github.com/Mrityunjoy99/sample-go/src/application/employee"
 	"github.com/Mrityunjoy99/sample-go/src/application/healthcheck"
 	"github.com/Mrityunjoy99/sample-go/src/application/user"
 	"github.com/Mrityunjoy99/sample-go/src/common/constant"
@@ -17,10 +18,11 @@ func RegisterRoutes(g *gin.Engine, appService application.Service, domainService
 
 	registerHealthCheckRoutes(globalGroup)
 	registerUserRoutes(globalGroup, appService, domainService)
-	adminRouteGroup(globalGroup, appService, domainService)
+	registerAdminRouteGroup(globalGroup, appService, domainService)
+	registerEmployeeRouterGroup(globalGroup, appService)
 }
 
-func adminRouteGroup(g *gin.RouterGroup, appService application.Service, domainService service.ServiceRegistry) {
+func registerAdminRouteGroup(g *gin.RouterGroup, appService application.Service, domainService service.ServiceRegistry) {
 	if appService.AdminService == nil {
 		panic("AdminService is required for admin routes")
 	}
@@ -43,4 +45,9 @@ func registerUserRoutes(g *gin.RouterGroup, appService application.Service, doma
 	g.POST("/user", middleware.AuthMiddleware(domainService.JwtService, constant.UserTypeUser), userController.CreateUser)
 	g.PUT("/user/:id", middleware.AuthMiddleware(domainService.JwtService, constant.UserTypeUser), userController.UpdateUser)
 	g.DELETE("/user/:id", middleware.AuthMiddleware(domainService.JwtService, constant.UserTypeManager), userController.DeleteUser)
+}
+
+func registerEmployeeRouterGroup(g *gin.RouterGroup, appService application.Service) {
+	employeeController := employee.NewController(appService.EmployeeService)
+	g.GET("/employee/:id", employeeController.GetEmployeeById)
 }
