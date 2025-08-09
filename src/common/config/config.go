@@ -9,8 +9,9 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Name string
-	Port int
+	Name string `default:"sample-go"`
+	Port int    `default:"8080"`
+	Id   string `default:"sample-go"`
 }
 
 type DatabaseConfig struct {

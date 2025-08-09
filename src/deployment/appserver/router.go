@@ -8,12 +8,13 @@ import (
 	"github.com/Mrityunjoy99/sample-go/src/common/constant"
 	"github.com/Mrityunjoy99/sample-go/src/deployment/middleware"
 	"github.com/Mrityunjoy99/sample-go/src/domain/service"
+	"github.com/Mrityunjoy99/sample-go/src/tools/logger"
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(g *gin.Engine, appService application.Service, domainService service.ServiceRegistry) {
+func RegisterRoutes(g *gin.Engine, logger logger.Logger, appService application.Service, domainService service.ServiceRegistry) {
 	globalGroup := g.Group("/")
-	globalGroup.Use(middleware.LoggerMiddleware())
+	globalGroup.Use(middleware.LoggerMiddleware(logger))
 
 	registerHealthCheckRoutes(globalGroup)
 	registerUserRoutes(globalGroup, appService, domainService)

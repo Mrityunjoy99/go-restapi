@@ -10,6 +10,7 @@ import (
 	"github.com/Mrityunjoy99/sample-go/src/domain/service"
 	"github.com/Mrityunjoy99/sample-go/src/repository"
 	"github.com/Mrityunjoy99/sample-go/src/tools/genericerror"
+	"github.com/Mrityunjoy99/sample-go/src/tools/logger"
 )
 
 type Service struct {
@@ -17,7 +18,7 @@ type Service struct {
 	AdminService admin.Service
 }
 
-func NewService(c *config.Config, r *repository.Repository, domainService *service.ServiceRegistry) (*Service, genericerror.GenericError) {
+func NewService(c *config.Config, r *repository.Repository, logger logger.Logger, domainService *service.ServiceRegistry) (*Service, genericerror.GenericError) {
 	if domainService == nil {
 		return nil, genericerror.NewGenericError(constant.ErrorCodeBadRequest, "domainService is required", nil, errors.New("domainService is required"))
 	}
@@ -26,7 +27,7 @@ func NewService(c *config.Config, r *repository.Repository, domainService *servi
 		return nil, genericerror.NewGenericError(constant.ErrorCodeBadRequest, "JwtService is required in domainService", nil, errors.New("JwtService is required in domainService"))
 	}
 
-	userService := user.NewService(r.UserRepo)
+	userService := user.NewService(logger, r.UserRepo)
 
 	return &Service{
 		UserService:  userService,

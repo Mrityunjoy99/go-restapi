@@ -21,7 +21,11 @@ watch:
 	ulimit -n 2048 && air
 
 run:
-	APPSERVER_PORT=8080 go run cmd/main.go run
+	APPSERVER_PORT=8080 go run cmd/main.go run 
+run-with-logs:
+	@mkdir -p logs
+	@LOG_FILE="logs/app-$$(date +'%Y-%m-%d').log" && \
+	APPSERVER_PORT=8080 go run cmd/main.go run 2>&1 | tee -a "$$LOG_FILE"
 
 generate:
 	go generate $(VERB) ./...

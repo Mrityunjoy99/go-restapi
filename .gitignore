@@ -183,3 +183,5 @@ tags
 # Support for Project snippet scope
 
 # End of https://www.toptal.com/developers/gitignore/api/go,vim,goland,visualstudiocode,dotenv
+
+logs

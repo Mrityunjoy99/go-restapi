@@ -10,6 +10,7 @@ import (
 	"github.com/Mrityunjoy99/sample-go/src/infrastructure/database"
 	mock_repository "github.com/Mrityunjoy99/sample-go/src/mocks/repository"
 	"github.com/Mrityunjoy99/sample-go/src/tools/genericerror"
+	"github.com/Mrityunjoy99/sample-go/src/tools/logger"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -22,8 +23,9 @@ type UsersTestSuite struct {
 }
 
 func (suite *UsersTestSuite) SetupTest() {
+	lggr, _ := logger.NewZapLogger("test")
 	suite.userRepo = mock_repository.NewUserRepository(suite.T())
-	suite.service = user.NewService(suite.userRepo)
+	suite.service = user.NewService(lggr, suite.userRepo)
 }
 
 func (suite *UsersTestSuite) TestGetUserByIdSuccess() {
