@@ -27,7 +27,9 @@ type zapLogger struct {
 }
 
 var (
-	once sync.Once
+	once            sync.Once
+	singletonLogger *zap.Logger
+	singletonErr    error
 )
 
 // NewZapLogger creates a new zap logger instance.
@@ -54,16 +56,11 @@ func ensureLogsDir() (string, error) {
 }
 
 func NewZapLogger(serviceName string) (Logger, error) {
-	var (
-		zl      *zap.Logger
-		initErr error
-	)
-
 	once.Do(func() {
 		// Get log file path and ensure logs directory exists first
 		logFilePath, err := ensureLogsDir()
 		if err != nil {
-			initErr = fmt.Errorf("failed to setup logs directory: %w", err)
+			singletonErr = fmt.Errorf("failed to setup logs directory: %w", err)
 			return
 		}
 
@@ -103,26 +100,25 @@ func NewZapLogger(serviceName string) (Logger, error) {
 			config.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
 		}
 
-		zl, initErr = config.Build(zap.AddCallerSkip(1))
-		if initErr != nil {
-			initErr = fmt.Errorf("failed to build logger: %w", initErr)
+		singletonLogger, singletonErr = config.Build(zap.AddCallerSkip(1))
+		if singletonErr != nil {
+			singletonErr = fmt.Errorf("failed to build logger: %w", singletonErr)
 			return
 		}
 
-		// Add service name to all logs
-		zl = zl.With(zap.String("service", serviceName))
-		zap.ReplaceGlobals(zl)
+		zap.ReplaceGlobals(singletonLogger)
 	})
 
-	if initErr != nil {
-		return nil, initErr
+	if singletonErr != nil {
+		return nil, singletonErr
 	}
 
-	if zl == nil {
+	if singletonLogger == nil {
 		return nil, fmt.Errorf("failed to initialize logger")
 	}
 
-	return &zapLogger{logger: zl}, nil
+	// Add service name to the returned logger
+	return &zapLogger{logger: singletonLogger.With(zap.String("service", serviceName))}, nil
 }
 
 func (l *zapLogger) Info(msg string, fields ...zap.Field) {
